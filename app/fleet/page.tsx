@@ -1,8 +1,34 @@
-export default function FleetPage() {
+import { createClient } from "@supabase/supabase-js";
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
+
+export default async function FleetPage() {
+  const { data: vehicles, error } = await supabase
+    .from("vehicles")
+    .select("*");
+
+  if (error) {
+    return <div>Error loading fleet</div>;
+  }
+
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center p-8">
-      <h1 className="text-3xl font-bold">Fleet</h1>
-      <p className="mt-2 text-gray-500">Vehicle management — coming soon.</p>
-    </main>
+    <div style={{ padding: 20 }}>
+      <h1>MovOS Fleet</h1>
+
+      {!vehicles || vehicles.length === 0 ? (
+        <p>No vehicles found</p>
+      ) : (
+        <ul>
+          {vehicles.map((v: any) => (
+            <li key={v.id}>
+              {v.id} — {v.status}
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
   );
 }
